@@ -134,7 +134,7 @@ sub readdir {
         # this is a file object created from directory listing. 
         # need to fetch the content
         my $f_data = $self->{FS}->open('/'.$self->{path});
-        $self->{content} = $f_data;
+        $self->{content} = $f_data->{content};
     }
     my @files;
     foreach my $rec (@{ $self->{content} }) {
