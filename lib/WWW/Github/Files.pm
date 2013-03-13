@@ -177,7 +177,18 @@ This modules is a thin warper around the API, just to make life easier
 
 The easiest way to get a file off Github is to use the raw url:
 
-http://raw.github.com/semuel/
+https://raw.github.com/semuel/perlmodule-WWW-Github-Files/master/MANIFEST
+
+This will return the content of this module's MANIFEST file. Easy, but 
+the file have to be public and you need to know beforehand where exactly 
+it is. (this method does not fetch directory content)
+
+Also, if you download two files under 'master', there is a chance that a
+commit happened in the middle and you get two files from two different
+versions of the respo. Of course you can fetch the current commit and
+use it instead of master, but then it is less easy
+
+This module let you use Access Token for permission, and scan directories
 
 =head1 CONSTRUCTOR OPTIONS
 
