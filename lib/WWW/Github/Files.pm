@@ -35,15 +35,16 @@ sub open {
         unless $path =~ m!^/!;
     my $commit = $self->__fetch_root();
     $path =~ s!/$!!;
+    $path = '/' if $path eq '';
     my $f_data = $self->geturl("/contents$path?ref=$commit");
     if (ref($f_data) eq 'ARRAY') {
         # a directory
-        my ($name) = $path =~ m!/([^/]+)$!;
+        my ($name) = $path =~ m!/([^/]*)$!;
         my $dir = {
             FS => $self,
             content => $f_data,
             name => $name,
-            path => substr($path, 1),
+            path => ( $path eq '/' ? '' : substr($path, 1) ),
         };
         return bless $dir, 'WWW::Github::Files::Dir';
     }
