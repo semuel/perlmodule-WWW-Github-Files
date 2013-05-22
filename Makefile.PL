@@ -8,5 +8,7 @@ WriteMakefile(
     PREREQ_PM     => {  
         'LWP::Protocol::https' => 0,
         'LWP::UserAgent' => '6.04',
+        'Carp' => 0,
+        'File::Spec' => 0,
     },
 );

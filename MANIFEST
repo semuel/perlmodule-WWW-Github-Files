@@ -3,3 +3,5 @@ MANIFEST
 Changes
 README
 lib/WWW/Github/Files.pm
+lib/WWW/Github/Files/Mock.pm
+t/01-basic.t
