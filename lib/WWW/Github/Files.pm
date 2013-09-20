@@ -5,7 +5,7 @@ use LWP::UserAgent;
 use JSON qw{decode_json};
 use Carp;
 
-our $VERSION = 0.10;
+our $VERSION = 0.13;
 
 sub new {
     my ($class, %options) = @_;
@@ -18,12 +18,14 @@ sub new {
         unless exists $options{branch} or exists $options{commit};
 
     my $self = {};
-    foreach my $key (qw( author resp token branch commit )) {
+    foreach my $key (qw( author resp token branch commit self_token )) {
         next unless exists $options{$key};
         $self->{$key} = $options{$key};
     }
     if (not exists $self->{token}) {
         $self->{ua} = LWP::UserAgent->new();
+        $self->{ua}->default_header( Authorization => "token ".$self->{self_token} )
+            if exists $self->{self_token};
     }
     $self->{apiurl} = 'https://api.github.com/repos/'.$options{author}.'/'.$options{resp};
     bless $self, $class;
@@ -89,7 +91,17 @@ sub geturl {
     $method ||= 'get';
     my $res = $token->$method($self->{apiurl} . $url);
     if (!$res->is_success()) {
-        die "Failed to read $self->{apiurl}$url from github: ".$res->message();
+        if ($res->message() =~ m/Internal Server Error/) {
+            # retry
+            my $res2 = $token->$method($self->{apiurl} . $url);
+            if ($res2->is_success()) {
+                $res = $res2;
+            }
+            print STDERR $res2->message(), ", ", $res2->content, "\n";
+        }
+        if (!$res->is_success()) {
+            die "Failed to read $self->{apiurl}$url from github: ".$res->message(). ", ".$res->content;
+        }
     }
     my $content = $res->content;
     return decode_json($content);
@@ -220,6 +232,10 @@ The object will retrive files and directories as they were after this commit
 
 Optional Net::Oauth2 Access Token, for using in API calls.
 If not specified, will make anonymous calls using LWP
+
+=item self_token
+
+Optional Github "Personal Access Token" to use for API authentication. 
 
 =back
 

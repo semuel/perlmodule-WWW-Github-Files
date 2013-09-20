@@ -4,40 +4,54 @@ use Test::More;
 
 use_ok('WWW::Github::Files');
 
-my $gitfiles = WWW::Github::Files->new(
-    author => 'semuel',
-    resp => 'perlmodule-WWW-Github-Files',
-    branch => 'master',
-);
+eval {
 
-ok($gitfiles, "object created");
+    my $gitfiles = WWW::Github::Files->new(
+        author => 'semuel',
+        resp => 'perlmodule-WWW-Github-Files',
+        branch => 'master',
+    );
 
-my @files = $gitfiles->open('/')->readdir();
 
-ok(scalar(@files), "read root directory");
+	ok($gitfiles, "object created");
 
-my ($manifest) = grep { $_->name eq 'MANIFEST' } @files;
+	my @files = $gitfiles->open('/')->readdir();
 
-ok($manifest, "found manifest file");
+	ok(scalar(@files), "read root directory");
 
-my $c = $manifest->read();
+	my ($manifest) = grep { $_->name eq 'MANIFEST' } @files;
 
-ok($c =~ m/^README$/m, "successfully read manifest file");
+	ok($manifest, "found manifest file");
 
-my ($t_dir) = grep { $_->name eq 't' } @files;
+	my $c = $manifest->read();
 
-ok($t_dir, "found t directory");
+	ok($c =~ m/^README$/m, "successfully read manifest file");
 
-my @t_files = $t_dir->readdir();
+	my ($t_dir) = grep { $_->name eq 't' } @files;
 
-ok(scalar(@t_files), "read files from t dir");
+	ok($t_dir, "found t directory");
 
-$manifest = $gitfiles->open('/MANIFEST');
+	my @t_files = $t_dir->readdir();
 
-ok($manifest, "found manifest file - direct");
+	ok(scalar(@t_files), "read files from t dir");
 
-$c = $manifest->read();
+	$manifest = $gitfiles->open('/MANIFEST');
 
-ok($c =~ m/^README$/m, "successfully read manifest file - direct");
+	ok($manifest, "found manifest file - direct");
+
+	$c = $manifest->read();
+
+	ok($c =~ m/^README$/m, "successfully read manifest file - direct");
+
+};
+if (my $error = $@) {
+    if ($error =~ m/API Rate Limit Exceeded/) {
+        diag('API Rate Limit Exceeded while testing, and that\'s OK');
+    }
+    else {
+        die $error;
+    }
+}
+
 
 done_testing();

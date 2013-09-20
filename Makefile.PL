@@ -10,5 +10,6 @@ WriteMakefile(
         'LWP::UserAgent' => '6.04',
         'Carp' => 0,
         'File::Spec' => 0,
+        'JSON' => 0,
     },
 );
